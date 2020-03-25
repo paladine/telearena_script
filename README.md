@@ -64,8 +64,6 @@ proto).
     * Self explanatory
   * **int32 move_pause_milliseconds**
     * How long to wait between movements in milliseconds. A value of 1 is a safe option to prevent tripping
-  * **bool share_money**
-    * Whether to share money with your group on a monster kill, deprecated, use a Trigger instead
   * **bool wait_for_all_members**
     * Whether to wait for all members to be ready before making a move
   * **bool has_yari**
