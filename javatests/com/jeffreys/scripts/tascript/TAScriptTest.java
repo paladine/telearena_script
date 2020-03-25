@@ -1616,26 +1616,6 @@ public class TAScriptTest {
   }
 
   @Test
-  public void shareMoney_shares() {
-    configuration = configuration.toBuilder().setShareMoney(true).build();
-
-    String text = CYAN + "You found 200 gold crowns while searching the area.\r\nTest\r\n";
-
-    assertThat(getScript(text).getNextLine()).isNotNull();
-    assertThat(output.toString()).isEqualTo("sh 200\r\n");
-  }
-
-  @Test
-  public void shareMoney_noSharingEnabled() {
-    configuration = configuration.toBuilder().setShareMoney(false).build();
-
-    String text = CYAN + "You found 200 gold crowns while searching the area.\r\nTest\r\n";
-
-    assertThat(getScript(text).getNextLine()).isNotNull();
-    assertThat(output.toString()).isEmpty();
-  }
-
-  @Test
   public void attacked_byMonster() {
     String text =
         RED + "The dwarven guard attacked you with his battleax for 28 damage!\r\nTest\r\n";

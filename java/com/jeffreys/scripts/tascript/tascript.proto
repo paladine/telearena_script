@@ -9,6 +9,8 @@ package scripts.tascript;
 
 // Next: 30
 message Configuration {
+  reserved 12;
+
   // what percentage of health to heal
   double heal_percentage = 1;
   // what percentage of health to trigger a big heal
@@ -34,8 +36,6 @@ message Configuration {
   // how long to wait between movements in milliseconds
   int32 move_pause_milliseconds = 11;
 
-  // whether to share money with your group on a monster kill
-  bool share_money = 12;
   // whether to wait for all members to be ready before making a move
   bool wait_for_all_members = 13;
   // whether you're a sorceror with yari who will maintain yari

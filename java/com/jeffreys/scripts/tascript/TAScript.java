@@ -1052,24 +1052,6 @@ public class TAScript {
     return true;
   }
 
-  private boolean isMoneyLine(ParsedAnsiText line) {
-    if (line.getFirstAttributeOrDefault().getForegroundColor().equals(AnsiColor.CYAN)
-        && line.getText().startsWith("You found ")
-        && line.getText().contains("gold crown")) {
-      if (configuration.getShareMoney()) {
-        int gold =
-            Integer.parseInt(
-                Iterables.get(SPACE_SPLITTER.split(line.getText()), 2, /* defaultValue= */ "0"));
-        if (gold > 0) {
-          output.printf("sh %d\r\n", gold);
-        }
-      }
-      return true;
-    }
-
-    return false;
-  }
-
   private boolean isNeedsYariLine(ParsedAnsiText line) {
     if (line.getFirstAttributeOrDefault().getForegroundColor().equals(AnsiColor.BLUE)
         && line.getText().equals("You suddenly feel very vulnerable!")) {
@@ -1095,8 +1077,6 @@ public class TAScript {
     } else if (isJoinLine(parsedAnsiText)) {
       return true;
     } else if (isLeaveLine(parsedAnsiText)) {
-      return true;
-    } else if (isMoneyLine(parsedAnsiText)) {
       return true;
     } else if (isNeedsYariLine(parsedAnsiText)) {
       needsYari = true;
