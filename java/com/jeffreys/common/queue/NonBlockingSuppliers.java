@@ -83,6 +83,7 @@ public class NonBlockingSuppliers {
           queue.put(queueValue);
         } catch (InterruptedException ex) {
           Thread.currentThread().interrupt();
+          return;
         }
       }
     }
