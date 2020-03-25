@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+option java_package = "com.jeffreys.scripts.tascript";
+option java_multiple_files = true;
+
+import "java/com/jeffreys/scripts/common/common.proto";
+
+package scripts.tascript;
+
+// Next: 30
+message Configuration {
+  // what percentage of health to heal
+  double heal_percentage = 1;
+  // what percentage of health to trigger a big heal
+  double big_heal_percentage = 2;
+  // what percentage of health to cast an area heal
+  double group_heal_percentage = 27;
+  // what percentage of health to bail? log out?
+  double critical_percentage = 3;
+
+  // whether you heal by attacking, i.e. a necromancer with yilazi
+  bool heal_spell_is_attack = 4;
+  // whether your big heal is an attack, i.e. a necromancer with yilazidaku
+  bool big_heal_spell_is_attack = 5;
+  // minimum mana to have before issuing a spell attack (heal not affected)
+  int32 minimum_attack_mana = 6;
+  // minimum mana to have before moving to the next room
+  int32 minimum_move_mana = 7;
+
+  int32 maximum_mana = 8;
+  int32 maximum_vitality = 9;
+
+  int32 number_of_physical_attacks = 10;
+  // how long to wait between movements in milliseconds
+  int32 move_pause_milliseconds = 11;
+
+  // whether to share money with your group on a monster kill
+  bool share_money = 12;
+  // whether to wait for all members to be ready before making a move
+  bool wait_for_all_members = 13;
+  // whether you're a sorceror with yari who will maintain yari
+  bool has_yari = 14;
+  // whether you're a druid with kotarimaru/kotari for your group eating purposes
+  string sustenance_command = 15;
+
+  // your character name
+  string username = 16;
+
+  // your heal spell, associated with heal_percentage
+  string heal_spell = 17;
+  // your big heal spell, associated with big_heal_percentage
+  string big_heal_spell = 18;
+  // your area heal spell
+  string group_heal_spell = 26;
+
+  // your single monster attack spell
+  string attack_spell = 19;
+  // an additional attack command to send, supports $1 for the target
+  string additional_attack_command = 28;
+  // your group attack spell, can be monster or all area
+  string group_attack_spell = 20;
+  // an additional group attack command to send, supports $1 for the first target
+  string additional_group_attack_command = 29;
+
+  // command to send before a forceful logoff
+  string log_off_command = 21;
+  // file to log everything to
+  string log_file = 22;
+  // file specifying the moves/route when the player is ready
+  string movement_file = 23;
+
+  repeated string protected_players = 24;
+
+  repeated scripts.common.Trigger triggers = 25;
+}

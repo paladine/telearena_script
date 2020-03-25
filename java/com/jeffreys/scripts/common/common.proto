@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option java_package = "com.jeffreys.scripts.common";
+option java_multiple_files = true;
+
+package scripts.common;
+
+enum Color {
+  BLACK = 0;
+  RED = 1;
+  GREEN = 2;
+  YELLOW = 3;
+  BLUE = 4;
+  MAGENTA = 5;
+  CYAN = 6;
+  WHITE = 7;
+
+  ANY = 100;
+}
+
+enum Attribute {
+  NO_ATTRIBUTE = 0;
+  BOLD = 1;
+  UNDERSCORE = 4;
+  BLINK = 5;
+  REVERSE_VIDEO = 6;
+  CONCEALED = 7;
+}
+
+message Trigger {
+  int32 id = 1;
+  Color expected_color = 2;
+  string trigger_regex = 3;
+  string command = 4;
+}
