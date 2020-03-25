@@ -23,7 +23,7 @@ writing a wrapper script
 ```
 #!/bin/sh
 
-java -jar TAScript.jar --config=configuration.textproto
+java -jar TAScript.jar --config=configuration.textproto 2> /tmp/script.stderr
 ```
 
 ## How to stop your script?
@@ -38,22 +38,68 @@ For maximum cross platform support. You can run this on Windows, Linux, Raspberr
 Once the script is running, do nothing. I'll describe the configuration options below (to be entered in the configuration
 proto).
 
-  * Attacking
-    * Define `number_of_physical_attacks`, command `a <target>`
-  * Attacking with a single spell
-    * Define `attack_spell`, command `as <target>`
-  * Attacking with an area spell
-    * Define `group_spell`, command `ag <target>`
-  * Healing a target
-    * Define `heal_spell`, command `heal <target>`
-  * Healing your group
-    * Define `group_heal_spell`, command `healg`
-  * Logging off
-    * In the case of script failure, rather than just exiting quietly, you can define a `logoff_command` to
-      execute to safely exit your character
-  * Logging data
-    * Define `log_file` and all script output will be written to this file for later analysis/debugging
-  * Triggers
+  * **double heal_percentage**
+    * What percentage of health to heal, specified as a floating point number between 0->1, e.g. gimotu
+  * **double big_heal_percentage**
+    * What percentage of health to trigger a big heal, specified as a floating point number between 0->1, e.g. kusamotu
+  * **double group_heal_percentage**
+    * What percentage of health one group member must have to cast an area heal specified as a floating point number between 0->1,
+      e.g. kusamotumaru. Will not cast an area if there is only one member in your group. Allows you to combine one TAScript with
+      several [TAFollow](https://github.com/paladine/telearena_follow) scripts to script multiple characters at the same time.
+  * **double critical_percentage**
+    * what percentage of health to bail, specified as a floating point number between 0->1. Executes your logoff command
+  * **bool heal_spell_is_attack**
+    * Whether you heal by attacking, i.e. a necromancer with yilazi
+  * **bool big_heal_spell_is_attack**
+    * Whether your big heal is an attack, i.e. a necromancer with yilazidaku
+  * **int32 minimum_attack_mana**
+    * Minimum mana to have before issuing a spell attack (heal not affected)
+  * **int32 minimum_move_mana**
+    * Minimum mana to have before moving to the next room
+  * **int32 maximum_mana**
+    * Your maximum mana. Currently not used, but would be used for tracking being drained and having to cast ganazi to emend.
+  * **int32 maximum_vitality**
+    * Your maximum vitality. Currently not used, but would be used for tracking being drained and having to cast ganazi to emend.
+  * **int32 number_of_physical_attacks**
+    * Self explanatory
+  * **int32 move_pause_milliseconds**
+    * How long to wait between movements in milliseconds. A value of 1 is a safe option to prevent tripping
+  * **bool share_money**
+    * Whether to share money with your group on a monster kill, deprecated, use a Trigger instead
+  * **bool wait_for_all_members**
+    * Whether to wait for all members to be ready before making a move
+  * **bool has_yari**
+    * Whether you're a sorceror with yari who will maintain yari
+  * **string sustenance_command**
+    * Whether you're a druid with kotarimaru/kotari for your group eating purposes. Command should be `c kotari <username>`,
+      `c kotarimaru` or `co c kotarimaru` if you're the controlling scripter.
+  * **string username**
+    * Your character name. Script nods to itself when starting to validate the name
+  * **string heal_spell**
+    * Your heal spell, associated with `heal_percentage`
+  * **string big_heal_spell**
+    * Your big heal spell, associated with `big_heal_percentage`
+  * **string group_heal_spell**
+    * Your group heal spell, associated with `group_heal_percentage`
+  * **string attack_spell**
+    * Your single monster attack spell
+  * **string additional_attack_command**
+    * An additional attack command to send, supports $1 for the target, e.g. `co as $1`
+  * **string group_attack_spell**
+    * Your area monster attack spell
+  * **string additional_group_attack_command**
+    * An additional group attack command to send, supports $1 for the first target, e.g. `co ag $1`
+  * **string log_off_command**
+    * Command to send before a forceful logoff, e.g. `=x\r\n`
+  * **string log_file**
+    * File to log everything to, e.g. `/tmp/script.log`
+  * **string movement_file**
+    * File specifying the moves/route when the player is ready. File contains one command per line. Empty lines and commented
+      lines are ignored, e.g. lines beginning with # or //
+  * **repeated string protected_players**
+    * A list of players never to attack
+
+  * **scripts.common.Trigger triggers**
     * A powerful regex trigger based system lets you match inputs and autogenerate outputs. See the example
       below to see how to use this feature
 
@@ -97,4 +143,81 @@ triggers: {
   trigger_regex: ".*You found (\\d+) gold crowns while searching the.*"
   command: "sh $1"
 }
+```
+
+## Sample movement file (for dwarven level 8, beginning slightly north of the warlords around the bends)
+```
+# start on the horizontal line, right before going south to the hard guys
+s
+s
+w
+w
+s
+s
+e
+e
+e
+s
+s
+s
+
+# turn around
+n
+n
+n
+w
+w
+w
+n
+n
+e
+e
+n
+n
+# back at beginning , head left
+w
+w
+w
+w
+w
+w
+w
+w
+w
+# at left fork
+n
+n
+w
+w
+w
+w
+e
+e
+e
+e
+s
+s
+# back at left fork
+s
+s
+w
+w
+w
+w
+e
+e
+e
+e
+n
+n
+# back at left fork, return
+e
+e
+e
+e
+e
+e
+e
+e
+e
 ```
