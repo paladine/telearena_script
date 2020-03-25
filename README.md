@@ -103,6 +103,13 @@ proto).
     * A powerful regex trigger based system lets you match inputs and autogenerate outputs. See the example
       below to see how to use this feature
 
+## Other Features
+  * The script will automatically attack people who have attacked you (except those listed under `protected_players`)
+  * The script will automatically add people to your group if they ask, so you don't nuke other players with area attack spells.
+    It will not add players who have attacked you.
+  * The script will automatically log off if it detects that you're in the temple, since you've probably been killed. So don't
+    have a movement file that takes you through the temple.
+  
 ## Sample script configuration for a High Priest
 See the [text proto definition](https://github.com/paladine/telearena_script/blob/master/java/com/jeffreys/scripts/tascript/tascript.proto)
 for the list of available fields.
