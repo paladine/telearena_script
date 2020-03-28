@@ -25,7 +25,9 @@ message Configuration {
   // after the threat is gone.
   bool heal_during_battle = 30;
 
-  // whether to heal not only yourself, but also your group members
+  // whether to heal not only yourself, but also your group members with your
+  // single heal spells. If you have a group heal spell, set group_heal_spell
+  // instead of setting this value to true
   bool heal_group = 31;
 
   // whether you heal by attacking, i.e. a necromancer with yilazi

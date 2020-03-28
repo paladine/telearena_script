@@ -1003,6 +1003,11 @@ public class TAScript {
         && configuration.getAdditionalAttackCommand().isEmpty()) {
       throw new IllegalArgumentException("You have no attack configured");
     }
+
+    if (configuration.getHealGroup()
+        && (configuration.getHealSpellIsAttack() || configuration.getBigHealSpellIsAttack())) {
+      throw new IllegalArgumentException("Can't set heal_group and have attacking heal spells");
+    }
   }
 
   private static boolean isCommandLine(ParsedAnsiText line) {

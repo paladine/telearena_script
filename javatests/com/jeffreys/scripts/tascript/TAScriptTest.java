@@ -2087,6 +2087,23 @@ public class TAScriptTest {
   }
 
   @Test
+  public void validateConfiguration_healGroup_andAttacks_smallHeal() {
+    configuration = configuration.toBuilder().setHealGroup(true).setHealSpellIsAttack(true).build();
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> getScript("").validateConfiguration("Super Conductor"));
+  }
+
+  @Test
+  public void validateConfiguration_healGroup_andAttacks_bigHeal() {
+    configuration =
+        configuration.toBuilder().setHealGroup(true).setBigHealSpellIsAttack(true).build();
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> getScript("").validateConfiguration("Super Conductor"));
+  }
+
+  @Test
   public void trigger_publishes_to_output() {
     triggers =
         Triggers.of(
