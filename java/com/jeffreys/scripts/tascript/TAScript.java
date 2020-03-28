@@ -958,6 +958,11 @@ public class TAScript {
             || configuration.getGroupHealPercentage() > 1.0)) {
       throw new IllegalArgumentException("Group heal percentage is not in range");
     }
+
+    if (configuration.getNumberOfPhysicalAttacks() <= 0
+        && configuration.getAdditionalAttackCommand().isEmpty()) {
+      throw new IllegalArgumentException("You have no attack configured");
+    }
   }
 
   private static boolean isCommandLine(ParsedAnsiText line) {

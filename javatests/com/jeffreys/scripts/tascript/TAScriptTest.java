@@ -63,7 +63,8 @@ public class TAScriptTest {
   @Bind private final Movements movements = new Movements(ImmutableList.of("\r\n"));
 
   @Bind(lazy = true)
-  private Configuration configuration = Configuration.newBuilder().setUsername(USERNAME).build();
+  private Configuration configuration =
+      Configuration.newBuilder().setUsername(USERNAME).setNumberOfPhysicalAttacks(1).build();
 
   @Bind private final Clock clock = Clock.systemUTC();
 
@@ -1629,7 +1630,11 @@ public class TAScriptTest {
     String text = RED + "Super Conductor attacked you with a battleax for 28 damage!\r\nTest\r\n";
 
     TAScript script = getScript(text);
-    assertThrows(AttackException.class, () -> { ParsedAnsiText tmp = script.getNextLine(); });
+    assertThrows(
+        AttackException.class,
+        () -> {
+          ParsedAnsiText tmp = script.getNextLine();
+        });
     assertThat(output.toString()).isEmpty();
     assertThat(script.getPlayersToAttack()).containsExactly("Super Conductor");
   }
@@ -1642,7 +1647,11 @@ public class TAScriptTest {
             + "Test\r\n";
 
     TAScript script = getScript(text);
-    assertThrows(AttackException.class, () -> { ParsedAnsiText tmp = script.getNextLine(); });
+    assertThrows(
+        AttackException.class,
+        () -> {
+          ParsedAnsiText tmp = script.getNextLine();
+        });
     assertThat(output.toString()).isEmpty();
     assertThat(script.getPlayersToAttack()).containsExactly("Super Conductor");
   }
@@ -1656,7 +1665,11 @@ public class TAScriptTest {
             + "Test\r\n";
 
     TAScript script = getScript(text);
-    assertThrows(AttackException.class, () -> { ParsedAnsiText tmp = script.getNextLine(); });
+    assertThrows(
+        AttackException.class,
+        () -> {
+          ParsedAnsiText tmp = script.getNextLine();
+        });
     assertThat(output.toString()).isEmpty();
     assertThat(script.getPlayersToAttack()).containsExactly("Super Conductor");
   }
@@ -1687,7 +1700,11 @@ public class TAScriptTest {
             + "Test\r\n";
 
     TAScript script = getScript(text);
-    assertThrows(AttackException.class, () -> { ParsedAnsiText tmp = script.getNextLine(); });
+    assertThrows(
+        AttackException.class,
+        () -> {
+          ParsedAnsiText tmp = script.getNextLine();
+        });
 
     assertThat(output.toString()).isEmpty();
     assertThat(script.getPlayersToAttack()).containsExactly("Super Conductor");
@@ -1914,6 +1931,18 @@ public class TAScriptTest {
   public void validateConfiguration_groupHealMoreThanOne() {
     configuration =
         configuration.toBuilder().setGroupHealSpell("motu").setGroupHealPercentage(1.01).build();
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> getScript("").validateConfiguration("Super Conductor"));
+  }
+
+  @Test
+  public void validateConfiguration_noAttacksConfigured() {
+    configuration =
+        configuration.toBuilder()
+            .setNumberOfPhysicalAttacks(0)
+            .setAdditionalAttackCommand("")
+            .build();
     assertThrows(
         IllegalArgumentException.class,
         () -> getScript("").validateConfiguration("Super Conductor"));
