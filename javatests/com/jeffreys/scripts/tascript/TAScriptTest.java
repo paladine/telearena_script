@@ -1407,6 +1407,7 @@ public class TAScriptTest {
     configuration =
         configuration.toBuilder()
             .setNumberOfPhysicalAttacks(2)
+            .setHealDuringBattle(true)
             .setHealSpell("motu")
             .setBigHealSpell("kusamotu")
             .setHealPercentage(0.8)
@@ -1447,6 +1448,7 @@ public class TAScriptTest {
     configuration =
         configuration.toBuilder()
             .setNumberOfPhysicalAttacks(2)
+            .setHealDuringBattle(true)
             .setHealSpell("motu")
             .setBigHealSpell("kusamotu")
             .setHealPercentage(0.8)
@@ -1488,6 +1490,7 @@ public class TAScriptTest {
     configuration =
         configuration.toBuilder()
             .setNumberOfPhysicalAttacks(2)
+            .setHealDuringBattle(true)
             .setHealSpell("motu")
             .setBigHealSpell("kusamotu")
             .setGroupHealSpell("kusamotumaru")
@@ -1535,6 +1538,7 @@ public class TAScriptTest {
     configuration =
         configuration.toBuilder()
             .setNumberOfPhysicalAttacks(2)
+            .setHealDuringBattle(true)
             .setHealSpell("motu")
             .setBigHealSpell("kusamotu")
             .setGroupHealSpell("kusamotumaru")
@@ -1581,6 +1585,7 @@ public class TAScriptTest {
     configuration =
         configuration.toBuilder()
             .setNumberOfPhysicalAttacks(2)
+            .setHealDuringBattle(true)
             .setHealSpell("motu")
             .setBigHealSpell("kusamotu")
             .setHealPercentage(0.8)
@@ -1613,6 +1618,133 @@ public class TAScriptTest {
 
     assertThat(output.toString())
         .isEqualTo("\r\na giantes\r\na giantes\r\nhe\r\nc motu Super\r\n\r\n");
+    verify(sleeper).sleep(any());
+  }
+
+  @Test
+  public void attackTargets_healsDisabledDuringBattle() {
+    configuration =
+        configuration.toBuilder()
+            .setNumberOfPhysicalAttacks(2)
+            .setHealDuringBattle(false)
+            .setHealSpell("motu")
+            .setBigHealSpell("kusamotu")
+            .setHealPercentage(0.8)
+            .setBigHealPercentage(0.6)
+            .setAttackSpell("tami")
+            .setGroupAttackSpell("dobudakidaku")
+            .setMinimumAttackMana(20)
+            .build();
+
+    String text =
+        YELLOW
+            + "You're in the north plaza.\r\n"
+            + RED
+            + "There is a flame giantess here.\r\n"
+            + CYAN
+            + "There is nothing on the floor.\r\n"
+            + "\r\n"
+            + "Mana:         49 / 300\r\n"
+            + "Vitality:     80 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + "\r\n"
+            + "You're in the north plaza.\r\n"
+            + MAGENTA
+            + "There is nobody here.\r\n"
+            + CYAN
+            + "There is nothing on the floor.\r\n";
+
+    TAScript script = getScript(text);
+    script.attackTargets();
+
+    assertThat(output.toString())
+        .isEqualTo("\r\na giantes\r\na giantes\r\nhe\r\nc tami giantes\r\n\r\n");
+    verify(sleeper).sleep(any());
+  }
+
+  @Test
+  public void attackTargets_healsDisabledDuringBattle_butHealSpellIsAttack() {
+    configuration =
+        configuration.toBuilder()
+            .setNumberOfPhysicalAttacks(2)
+            .setHealDuringBattle(false)
+            .setHealSpell("yilazi")
+            .setHealSpellIsAttack(true)
+            .setBigHealSpell("kusamotu")
+            .setHealPercentage(0.8)
+            .setBigHealPercentage(0.6)
+            .setAttackSpell("tami")
+            .setGroupAttackSpell("dobudakidaku")
+            .setMinimumAttackMana(20)
+            .build();
+
+    String text =
+        YELLOW
+            + "You're in the north plaza.\r\n"
+            + RED
+            + "There is a flame giantess here.\r\n"
+            + CYAN
+            + "There is nothing on the floor.\r\n"
+            + "\r\n"
+            + "Mana:         49 / 300\r\n"
+            + "Vitality:     80 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + "\r\n"
+            + "You're in the north plaza.\r\n"
+            + MAGENTA
+            + "There is nobody here.\r\n"
+            + CYAN
+            + "There is nothing on the floor.\r\n";
+
+    TAScript script = getScript(text);
+    script.attackTargets();
+
+    assertThat(output.toString())
+        .isEqualTo(
+            "\r\na giantes\r\na giantes\r\nhe\r\nc yilazi giantes\r\nc tami giantes\r\n\r\n");
+    verify(sleeper).sleep(any());
+  }
+
+  @Test
+  public void attackTargets_healsDisabledDuringBattle_butBigHealSpellIsAttack() {
+    configuration =
+        configuration.toBuilder()
+            .setNumberOfPhysicalAttacks(2)
+            .setHealDuringBattle(false)
+            .setHealSpell("motu")
+            .setBigHealSpell("yilazi")
+            .setBigHealSpellIsAttack(true)
+            .setHealPercentage(0.8)
+            .setBigHealPercentage(0.6)
+            .setAttackSpell("tami")
+            .setGroupAttackSpell("dobudakidaku")
+            .setMinimumAttackMana(20)
+            .build();
+
+    String text =
+        YELLOW
+            + "You're in the north plaza.\r\n"
+            + RED
+            + "There is a flame giantess here.\r\n"
+            + CYAN
+            + "There is nothing on the floor.\r\n"
+            + "\r\n"
+            + "Mana:         49 / 300\r\n"
+            + "Vitality:     60 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + "\r\n"
+            + "You're in the north plaza.\r\n"
+            + MAGENTA
+            + "There is nobody here.\r\n"
+            + CYAN
+            + "There is nothing on the floor.\r\n";
+
+    TAScript script = getScript(text);
+    script.attackTargets();
+
+    assertThat(output.toString())
+        .isEqualTo(
+            "\r\na giantes\r\na giantes\r\nhe\r\nc yilazi giantes\r\nc tami giantes\r\n\r\n");
     verify(sleeper).sleep(any());
   }
 

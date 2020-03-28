@@ -752,7 +752,9 @@ public class TAScript {
       attack(targetResults);
 
       PlayerStatus playerStatus = getPlayerStatusIgnoringAttacks();
-      heal(playerStatus, targetResults);
+      if (shouldHealDuringBattle()) {
+        heal(playerStatus, targetResults);
+      }
 
       if (playerStatus.getMana() >= configuration.getMinimumAttackMana()) {
         castAttackSpell(targetResults);
@@ -762,6 +764,12 @@ public class TAScript {
 
       sleeper.sleep(ATTACK_TIMEOUT);
     }
+  }
+
+  private boolean shouldHealDuringBattle() {
+    return configuration.getHealDuringBattle()
+        || (!configuration.getBigHealSpell().isEmpty() && configuration.getBigHealSpellIsAttack())
+        || (!configuration.getHealSpell().isEmpty() && configuration.getHealSpellIsAttack());
   }
 
   private boolean heal(PlayerStatus playerStatus) {

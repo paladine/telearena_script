@@ -7,7 +7,7 @@ import "java/com/jeffreys/scripts/common/common.proto";
 
 package scripts.tascript;
 
-// Next: 30
+// Next: 31
 message Configuration {
   reserved 12;
 
@@ -19,6 +19,11 @@ message Configuration {
   double group_heal_percentage = 27;
   // what percentage of health to bail? log out?
   double critical_percentage = 3;
+
+  // whether you heal during battle. Typically true for a high priest, but likely false
+  // for a druid, who wants to kill their enemies quickly and then slowly heal with fadi
+  // after the threat is gone.
+  bool heal_during_battle = 30;
 
   // whether you heal by attacking, i.e. a necromancer with yilazi
   bool heal_spell_is_attack = 4;
