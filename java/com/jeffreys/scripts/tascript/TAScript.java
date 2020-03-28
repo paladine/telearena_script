@@ -447,8 +447,11 @@ public class TAScript {
 
     abstract boolean allAreReady();
 
-    /* Returns the lowest health percentage, should be between 0.0 and 1.0 (full health). */
+    /** Returns the lowest health percentage, should be between 0.0 and 1.0 (full health). */
     abstract double getLowestHealthPercentage();
+
+    /** Returns the group member with the lowest health percentage. */
+    abstract String getLowestHealthMember();
 
     int getGroupSize() {
       return getGroupMembers().size();
@@ -458,9 +461,14 @@ public class TAScript {
         Collection<String> groupMembers,
         boolean youAreAready,
         boolean allAreReady,
-        double lowestHealthPercentage) {
+        double lowestHealthPercentage,
+        String lowestHealthMember) {
       return new AutoValue_TAScript_GroupMemberStatus(
-          ImmutableSet.copyOf(groupMembers), youAreAready, allAreReady, lowestHealthPercentage);
+          ImmutableSet.copyOf(groupMembers),
+          youAreAready,
+          allAreReady,
+          lowestHealthPercentage,
+          lowestHealthMember);
     }
   }
 
@@ -483,7 +491,8 @@ public class TAScript {
     private int numReady = 0;
     private boolean youAreReady = false;
     private boolean foundBeginning = false;
-    private double lowestHealthPercentage = 1.0;
+    private double lowestHealthPercentage = 100.0;
+    private String lowestHealthMember = null;
     private ImmutableSet.Builder<String> groupMembersBuilder = ImmutableSet.builder();
     private GroupMemberStatus groupMemberStatus;
 
@@ -492,7 +501,8 @@ public class TAScript {
       numReady = 0;
       youAreReady = false;
       foundBeginning = false;
-      lowestHealthPercentage = 1.0;
+      lowestHealthPercentage = 100.0;
+      lowestHealthMember = null;
       groupMembersBuilder = ImmutableSet.builder();
     }
 
@@ -510,7 +520,11 @@ public class TAScript {
         boolean allAreReady = (numReady == groupMembers.size());
         return setResult(
             GroupMemberStatus.create(
-                groupMembers, youAreReady || allAreReady, allAreReady, lowestHealthPercentage));
+                groupMembers,
+                youAreReady || allAreReady,
+                allAreReady,
+                lowestHealthPercentage,
+                lowestHealthMember));
       } else if (line.getText().lastIndexOf("ST:", ST_INDEX) == ST_INDEX) {
         String username = getUsernameFromSTLine(line.getText());
         // add them to our list
@@ -531,6 +545,7 @@ public class TAScript {
               (double) getValueWorkingBackwards(line.getText(), percentIndex - 1) / 100.0;
           if (value < lowestHealthPercentage) {
             lowestHealthPercentage = value;
+            lowestHealthMember = username;
           }
         }
       }
@@ -717,7 +732,7 @@ public class TAScript {
 
     PlayerStatus.Builder builder = playerStatusSendUntilHandler.getPlayerStatusBuilder();
 
-    if (!configuration.getGroupHealSpell().isEmpty()) {
+    if (!configuration.getGroupHealSpell().isEmpty() || configuration.getHealGroup()) {
       builder.setGroupMemberStatus(getGroupStatus());
     }
 
@@ -779,20 +794,17 @@ public class TAScript {
   private boolean heal(PlayerStatus playerStatus, GetTargetResult targetResults) {
     double healthRatio =
         (double) playerStatus.getVitality() / (double) playerStatus.getMaxVitality();
+
+    if (healthRatio <= configuration.getCriticalPercentage()) {
+      logoff();
+      return false;
+    }
+
     boolean canCastGroupHeal =
         !configuration.getGroupHealSpell().isEmpty()
             && playerStatus.getGroupMemberStatus().map(GroupMemberStatus::getGroupSize).orElse(1)
                 > 1;
-    boolean canCastBigHeal =
-        !configuration.getBigHealSpell().isEmpty()
-            && (!configuration.getBigHealSpellIsAttack() || targetResults.getCount() > 0);
-    boolean canCastHeal =
-        !configuration.getHealSpell().isEmpty()
-            && (!configuration.getHealSpellIsAttack() || targetResults.getCount() > 0);
-
-    if (healthRatio <= configuration.getCriticalPercentage()) {
-      logoff();
-    } else if (canCastGroupHeal
+    if (canCastGroupHeal
         && playerStatus
                 .getGroupMemberStatus()
                 .map(GroupMemberStatus::getLowestHealthPercentage)
@@ -800,15 +812,34 @@ public class TAScript {
             <= configuration.getGroupHealPercentage()) {
       castGroupHeal();
       return true;
-    } else if (canCastBigHeal && healthRatio <= configuration.getBigHealPercentage()) {
+    }
+
+    String recipient;
+    if (configuration.getHealGroup() && playerStatus.getGroupMemberStatus().isPresent()) {
+      recipient = getFirstWord(playerStatus.getGroupMemberStatus().get().getLowestHealthMember());
+      healthRatio = playerStatus.getGroupMemberStatus().get().getLowestHealthPercentage();
+    } else {
+      recipient = adjustedUsername;
+    }
+
+    boolean canCastBigHeal =
+        !configuration.getBigHealSpell().isEmpty()
+            && (!configuration.getBigHealSpellIsAttack() || targetResults.getCount() > 0);
+    boolean canCastHeal =
+        !configuration.getHealSpell().isEmpty()
+            && (!configuration.getHealSpellIsAttack() || targetResults.getCount() > 0);
+
+    if (canCastBigHeal && healthRatio <= configuration.getBigHealPercentage()) {
       castHeal(
           targetResults.getTarget(),
+          recipient,
           configuration.getBigHealSpell(),
           configuration.getBigHealSpellIsAttack());
       return true;
     } else if (canCastHeal && healthRatio <= configuration.getHealPercentage()) {
       castHeal(
           targetResults.getTarget(),
+          recipient,
           configuration.getHealSpell(),
           configuration.getHealSpellIsAttack());
       return true;
@@ -904,14 +935,15 @@ public class TAScript {
     output.flush();
   }
 
-  private void castHeal(String target, String healSpell, boolean healSpellIsAttack) {
+  private void castHeal(
+      String target, String recipient, String healSpell, boolean healSpellIsAttack) {
     checkArgument(!healSpell.isEmpty());
     checkArgument(!healSpellIsAttack || target != null);
 
     if (healSpellIsAttack) {
       output.printf("c %s %s\r\n", healSpell, target);
     } else {
-      output.printf("c %s %s\r\n", healSpell, adjustedUsername);
+      output.printf("c %s %s\r\n", healSpell, recipient);
     }
     output.flush();
   }

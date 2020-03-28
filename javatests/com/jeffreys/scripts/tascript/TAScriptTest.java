@@ -99,7 +99,8 @@ public class TAScriptTest {
                 ImmutableSet.of("t"),
                 /* youAreReady= */ true,
                 /* allAreReady= */ true,
-                /* lowestHealth= */ 1.0));
+                /* lowestHealth= */ 1.0,
+                /* lowestHealthMember= */ "t"));
   }
 
   @Test
@@ -115,7 +116,8 @@ public class TAScriptTest {
                 ImmutableSet.of("t"),
                 /* youAreReady= */ false,
                 /* allAreReady= */ false,
-                /* lowestHealth= */ 1.0));
+                /* lowestHealth= */ 1.0,
+                /* lowestHealthMember= */ "t"));
   }
 
   @Test
@@ -132,7 +134,8 @@ public class TAScriptTest {
                 ImmutableSet.of("t", "Super Conductor"),
                 /* youAreReady= */ true,
                 /* allAreReady= */ false,
-                /* lowestHealth= */ .48));
+                /* lowestHealth= */ .48,
+                /* lowestHealthMember= */ "t"));
   }
 
   @Test
@@ -149,7 +152,8 @@ public class TAScriptTest {
                 ImmutableSet.of("t", "Super Conductor"),
                 /* youAreReady= */ false,
                 /* allAreReady= */ false,
-                /* lowestHealth= */ 0.48));
+                /* lowestHealth= */ 0.48,
+                /* lowestHealthMember= */ "Super Conductor"));
   }
 
   @Test
@@ -675,7 +679,8 @@ public class TAScriptTest {
                 ImmutableSet.of("t", "Super Conductor", "Dude"),
                 /* youAreReady= */ true,
                 /* allAreReady= */ true,
-                /* lowestHealth= */ .1));
+                /* lowestHealth= */ .1,
+                /* lowestHealthMember= */ "Super Conductor"));
   }
 
   @Test
@@ -705,7 +710,8 @@ public class TAScriptTest {
                 ImmutableSet.of("t"),
                 /* youAreReady= */ true,
                 /* allAreReady= */ true,
-                /* lowestHealth= */ .99));
+                /* lowestHealth= */ .99,
+                /* lowestHealthMember= */ "t"));
   }
 
   @Test
@@ -2196,7 +2202,7 @@ public class TAScriptTest {
             + "Vitality:     79 / 100\r\n"
             + "Status:       Healthy\r\n"
             + "Your group currently consists of:\r\n"
-            + "  Super Conductor                (L) [HE:79% ST:Ready]\r\n"
+            + "  Super Conductor                (L) [HE: 79% ST:Ready]\r\n"
             + "\r\n"
             + "Mana:         0 / 0\r\n"
             + "Vitality:     100 / 100\r\n"
@@ -2211,6 +2217,113 @@ public class TAScriptTest {
 
     assertThat(output.toString()).isEqualTo("he\r\ngr\r\nc motu Super\r\nhe\r\ngr\r\n");
     verify(sleeper).sleep(any());
+  }
+
+  @Test
+  public void checkHealth_groupHeal_individual() {
+    configuration =
+        configuration.toBuilder()
+            .setHealPercentage(0.9)
+            .setBigHealPercentage(0.7)
+            .setGroupHealPercentage(0.8)
+            .setCriticalPercentage(0.5)
+            .setLogOffCommand("=x\r\n")
+            .setHealSpellIsAttack(false)
+            .setBigHealSpellIsAttack(false)
+            .setHealGroup(true)
+            .setHealSpell("fadi")
+            .build();
+
+    String text =
+        "Mana:         0 / 0\r\n"
+            + "Vitality:     79 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + "Your group currently consists of:\r\n"
+            + "  Super Conductor                (L) [HE: 79% ST:Ready]\r\n"
+            + "\r\n"
+            + "Mana:         0 / 0\r\n"
+            + "Vitality:     100 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + "Your group currently consists of:\r\n"
+            + "  Super Conductor                (L) [HE:100% ST:Ready]\r\n"
+            + "\r\n";
+
+    TAScript tascript = getScript(text);
+
+    getScript(text).checkHealth();
+
+    assertThat(output.toString()).isEqualTo("he\r\ngr\r\nc fadi Super\r\nhe\r\ngr\r\n");
+    verify(sleeper).sleep(any());
+  }
+
+  @Test
+  public void checkHealth_groupHeal_healsEachPerson() {
+    configuration =
+        configuration.toBuilder()
+            .setHealDuringBattle(false)
+            .setHealPercentage(0.9)
+            .setBigHealPercentage(0.7)
+            .setGroupHealPercentage(0.8)
+            .setCriticalPercentage(0.5)
+            .setLogOffCommand("=x\r\n")
+            .setHealSpellIsAttack(false)
+            .setBigHealSpellIsAttack(false)
+            .setHealGroup(true)
+            .setHealSpell("fadi")
+            .build();
+
+    String text =
+        "Mana:         0 / 0\r\n"
+            + "Vitality:     79 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + "Your group currently consists of:\r\n"
+            + "  Super Conductor                (L) [HE: 79% ST:Ready]\r\n"
+            + "  Paladine                       (L) [HE: 78% ST:Ready]\r\n"
+            + "  Fisty                          (L) [HE: 77% ST:Ready]\r\n"
+            + "\r\n"
+            + "Mana:         0 / 0\r\n"
+            + "Vitality:     100 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + "Your group currently consists of:\r\n"
+            + "  Super Conductor                (L) [HE: 79% ST:Ready]\r\n"
+            + "  Paladine                       (L) [HE: 78% ST:Ready]\r\n"
+            + "  Fisty                          (L) [HE:100% ST:Ready]\r\n"
+            + "\r\n"
+            + "Mana:         0 / 0\r\n"
+            + "Vitality:     100 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + "Your group currently consists of:\r\n"
+            + "  Super Conductor                (L) [HE: 79% ST:Ready]\r\n"
+            + "  Paladine                       (L) [HE:100% ST:Ready]\r\n"
+            + "  Fisty                          (L) [HE:100% ST:Ready]\r\n"
+            + "\r\n"
+            + "Mana:         0 / 0\r\n"
+            + "Vitality:     100 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + "Your group currently consists of:\r\n"
+            + "  Super Conductor                (L) [HE:100% ST:Ready]\r\n"
+            + "  Paladine                       (L) [HE:100% ST:Ready]\r\n"
+            + "  Fisty                          (L) [HE:100% ST:Ready]\r\n"
+            + "\r\n";
+
+    TAScript tascript = getScript(text);
+
+    getScript(text).checkHealth();
+
+    assertThat(output.toString())
+        .isEqualTo(
+            "he\r\n"
+                + "gr\r\n"
+                + "c fadi Fisty\r\n"
+                + "he\r\n"
+                + "gr\r\n"
+                + "c fadi Paladine\r\n"
+                + "he\r\n"
+                + "gr\r\n"
+                + "c fadi Super\r\n"
+                + "he\r\n"
+                + "gr\r\n");
+    verify(sleeper, times(3)).sleep(any());
   }
 
   private TAScript getScript(String input) {

@@ -7,7 +7,7 @@ import "java/com/jeffreys/scripts/common/common.proto";
 
 package scripts.tascript;
 
-// Next: 31
+// Next: 32
 message Configuration {
   reserved 12;
 
@@ -24,6 +24,9 @@ message Configuration {
   // for a druid, who wants to kill their enemies quickly and then slowly heal with fadi
   // after the threat is gone.
   bool heal_during_battle = 30;
+
+  // whether to heal not only yourself, but also your group members
+  bool heal_group = 31;
 
   // whether you heal by attacking, i.e. a necromancer with yilazi
   bool heal_spell_is_attack = 4;
