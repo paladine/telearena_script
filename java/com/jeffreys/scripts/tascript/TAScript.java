@@ -82,9 +82,22 @@ public class TAScript {
   private String adjustedUsername;
   private boolean needsYari = false;
 
+  static class ResumeableException extends RuntimeException {
+    private ResumeableException(String msg) {
+      super(msg);
+    }
+  }
+
   @VisibleForTesting
-  static class AttackException extends RuntimeException {
+  static class AttackException extends ResumeableException {
     private AttackException(String msg) {
+      super(msg);
+    }
+  }
+
+  @VisibleForTesting
+  static class ArrivalException extends ResumeableException {
+    private ArrivalException(String msg) {
       super(msg);
     }
   }
@@ -177,8 +190,8 @@ public class TAScript {
         waitUntilReady();
 
         move();
-      } catch (AttackException ex) {
-        logger.atWarning().withCause(ex).log("You've been attacked!");
+      } catch (ResumeableException ex) {
+        logger.atWarning().withCause(ex).log("Exception in non-attacking loop");
       }
     }
   }
@@ -409,9 +422,9 @@ public class TAScript {
 
     @Override
     public void handleException(RuntimeException ex) {
-      if (ex instanceof AttackException) {
+      if (ex instanceof ResumeableException) {
         // ignore it
-        logger.atWarning().withCause(ex).log("You've been attacked!");
+        logger.atWarning().withCause(ex).log("ResumeableException while retrieving monsters");
         return;
       }
 
@@ -739,11 +752,11 @@ public class TAScript {
     return builder.build();
   }
 
-  private PlayerStatus getPlayerStatusIgnoringAttacks() {
+  private PlayerStatus getPlayerStatusIgnoringResumeableExceptions() {
     while (true) {
       try {
         return getPlayerStatus();
-      } catch (AttackException ex) {
+      } catch (ResumeableException ex) {
         // ignore
       }
     }
@@ -766,10 +779,8 @@ public class TAScript {
       // attack
       attack(targetResults);
 
-      PlayerStatus playerStatus = getPlayerStatusIgnoringAttacks();
-      if (shouldHealDuringBattle()) {
-        heal(playerStatus, targetResults);
-      }
+      PlayerStatus playerStatus = getPlayerStatusIgnoringResumeableExceptions();
+      heal(playerStatus, targetResults, HealScenario.InBattle);
 
       if (playerStatus.getMana() >= configuration.getMinimumAttackMana()) {
         castAttackSpell(targetResults);
@@ -787,16 +798,26 @@ public class TAScript {
         || (!configuration.getHealSpell().isEmpty() && configuration.getHealSpellIsAttack());
   }
 
+  private enum HealScenario {
+    InBattle,
+    PostBattle,
+  };
+
   private boolean heal(PlayerStatus playerStatus) {
-    return heal(playerStatus, EMPTY_TARGET_RESULT);
+    return heal(playerStatus, EMPTY_TARGET_RESULT, HealScenario.PostBattle);
   }
 
-  private boolean heal(PlayerStatus playerStatus, GetTargetResult targetResults) {
+  private boolean heal(
+      PlayerStatus playerStatus, GetTargetResult targetResults, HealScenario healScenario) {
     double healthRatio =
         (double) playerStatus.getVitality() / (double) playerStatus.getMaxVitality();
 
     if (healthRatio <= configuration.getCriticalPercentage()) {
       logoff();
+      return false;
+    }
+
+    if (healScenario.equals(HealScenario.InBattle) && !shouldHealDuringBattle()) {
       return false;
     }
 
@@ -1015,6 +1036,10 @@ public class TAScript {
     return false;
   }
 
+  private boolean isArrivedLine(ParsedAnsiText line) {
+    return line.getText().contains(" has just arrived from ");
+  }
+
   private boolean isAttackLine(ParsedAnsiText line) {
     if (!line.getFirstAttributeOrDefault().getForegroundColor().equals(AnsiColor.RED)) {
       return false;
@@ -1120,6 +1145,8 @@ public class TAScript {
       return true;
     } else if (isAttackLine(parsedAnsiText)) {
       throw new AttackException("You've been attacked!");
+    } else if (isArrivedLine(parsedAnsiText)) {
+      throw new ArrivalException("Something has arrived");
     } else if (isDeadLine(parsedAnsiText)) {
       throw new DeadException("You're dead!");
     } else if (isDamageLine(parsedAnsiText)) {

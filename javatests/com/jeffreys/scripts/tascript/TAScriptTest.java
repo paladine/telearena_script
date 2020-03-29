@@ -60,7 +60,7 @@ public class TAScriptTest {
   @Bind(lazy = true)
   private NonBlockingSupplier<String> lineSupplier;
 
-  @Bind private final Movements movements = new Movements(ImmutableList.of("\r\n"));
+  @Bind private final Movements movements = new Movements(ImmutableList.of("down"));
 
   @Bind(lazy = true)
   private Configuration configuration =
@@ -1982,6 +1982,82 @@ public class TAScriptTest {
     assertThrows(DeadException.class, () -> script.run());
 
     assertThat(output.toString()).isEqualTo("gr\r\nnod t\r\nnod Super\r\ngr\r\nx\r\n\r\n=x\r\n");
+  }
+
+  @Test
+  public void run_withMonsterArrivingWhileResting() {
+    configuration =
+        configuration.toBuilder()
+            .setCriticalPercentage(0.2)
+            .setWaitForAllMembers(true)
+            .setLogOffCommand("=x\r\n")
+            .build();
+    String text =
+        "Your group currently consists of:\r\n"
+            + "  t                              (L) [HE:100% ST:Resting]\r\n"
+            + "  Super Conductor                (L) [HE:100% ST:Ready]\r\n"
+            + "\r\n"
+            + "Super Conductor nodded to you in agreement!\r\n"
+            + "Your group currently consists of:\r\n"
+            + "  t                              (L) [HE:100% ST:Resting]\r\n"
+            + "  Super Conductor                (L) [HE:100% ST:Ready]\r\n"
+            + "\r\n"
+            + YELLOW
+            + "You're in the north plaza.\r\n"
+            + MAGENTA
+            + "There is nobody here.\r\n"
+            + CYAN
+            + "There is nothing on the floor.\r\n"
+            + "Mana:         0 / 0\r\n"
+            + "Vitality:     100 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + "Your group currently consists of:\r\n"
+            + "  t                              (L) [HE:100% ST:Resting]\r\n"
+            + "  Super Conductor                (L) [HE:100% ST:Ready]\r\n"
+            + "\r\n"
+            + "Your group currently consists of:\r\n"
+            + "  t                              (L) [HE:100% ST:Resting]\r\n"
+            + "  Super Conductor                (L) [HE:100% ST:Ready]\r\n"
+            + "\r\n" // at this point, we inject a monster arriving
+            + "A dwarven warlord has just arrived from the east."
+            + YELLOW
+            + "You're in the north plaza.\r\n"
+            + MAGENTA
+            + "There is nobody here.\r\n"
+            + CYAN
+            + "There is nothing on the floor.\r\n"
+            + "Mana:         0 / 0\r\n"
+            + "Vitality:     100 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + "Your group currently consists of:\r\n"
+            + "  t                              (L) [HE:100% ST:Ready]\r\n"
+            + "  Super Conductor                (L) [HE:100% ST:Ready]\r\n"
+            + "\r\n"
+            + "Mana:         0 / 0\r\n"
+            + "Vitality:     100 / 100\r\n"
+            + "Status:       Healthy\r\n"
+            + GREEN // and stop the script by simulating a death
+            + "There is a grey robed priest here.\r\n";
+
+    TAScript script = getScript(text);
+    assertThrows(DeadException.class, () -> script.run());
+
+    assertThat(output.toString())
+        .isEqualTo(
+            "gr\r\n"
+                + "nod t\r\n"
+                + "nod Super\r\n"
+                + "gr\r\n\r\n"
+                + "he\r\n"
+                + "gr\r\n"
+                + "gr\r\n"
+                + "gr\r\n\r\n"
+                + "he\r\n"
+                + "gr\r\n"
+                + "he\r\n"
+                + "down\r\n\r\n"
+                + "x\r\n\r\n"
+                + "=x\r\n");
   }
 
   @Test
