@@ -48,6 +48,12 @@ proto).
       several [TAFollow](https://github.com/paladine/telearena_follow) scripts to script multiple characters at the same time.
   * **double critical_percentage**
     * what percentage of health to bail, specified as a floating point number between 0->1. Executes your logoff command
+  * **bool heal_during_battle**
+    * whether you heal during battle. Typically true for a high priest, but likely false for a druid, who wants to kill their
+      enemies quickly and then slowly heal with fadi after the threat is gone.
+  * **bool heal_group**
+    * whether to heal not only yourself, but also your group members with your single heal spells. If you have a group heal spell,
+      set group_heal_spell instead of setting this value to true
   * **bool heal_spell_is_attack**
     * Whether you heal by attacking, i.e. a necromancer with yilazi
   * **bool big_heal_spell_is_attack**
@@ -96,7 +102,8 @@ proto).
       lines are ignored, e.g. lines beginning with # or //
   * **repeated string protected_players**
     * A list of players never to attack
-
+  * **repeated string players_to_attack**
+    * A list of players to attack on script startup
   * **scripts.common.Trigger triggers**
     * A powerful regex trigger based system lets you match inputs and autogenerate outputs. See the example
       below to see how to use this feature
@@ -114,6 +121,8 @@ for the list of available fields.
 
 ```
 critical_percentage: 0.3
+
+heal_during_battle: true
 
 heal_spell: "kusamotu"
 heal_percentage: 0.77
