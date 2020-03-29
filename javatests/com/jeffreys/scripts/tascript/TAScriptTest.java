@@ -2419,6 +2419,17 @@ public class TAScriptTest {
     verify(sleeper, times(3)).sleep(any());
   }
 
+  @Test
+  public void playersToAttack_initiallyContainsConfiguration() {
+    configuration =
+        configuration.toBuilder()
+            .addPlayersToAttack("Paladine")
+            .addPlayersToAttack("Fisty")
+            .build();
+    TAScript script = getScript("");
+    assertThat(script.getPlayersToAttack()).containsExactly("Paladine", "Fisty");
+  }
+
   private TAScript getScript(String input) {
     Scanner scanner = new Scanner(new ByteArrayInputStream(input.getBytes(UTF_8)));
 

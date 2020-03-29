@@ -7,7 +7,7 @@ import "java/com/jeffreys/scripts/common/common.proto";
 
 package scripts.tascript;
 
-// Next: 32
+// Next: 33
 message Configuration {
   reserved 12;
 
@@ -79,7 +79,11 @@ message Configuration {
   // file specifying the moves/route when the player is ready
   string movement_file = 23;
 
+  // players never to attack
   repeated string protected_players = 24;
+
+  // the initial set of players to attack at script bootup time
+  repeated string players_to_attack = 32;
 
   repeated scripts.common.Trigger triggers = 25;
 }

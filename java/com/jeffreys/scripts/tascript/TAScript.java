@@ -148,6 +148,8 @@ public class TAScript {
     this.logFile = logFile;
     this.sleeper = sleeper;
     this.movePauseDuration = Duration.ofMillis(configuration.getMovePauseMilliseconds());
+
+    playersToAttack.addAll(configuration.getPlayersToAttackList());
   }
 
   void run() {
