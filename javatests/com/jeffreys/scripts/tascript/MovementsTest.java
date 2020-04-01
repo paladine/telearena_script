@@ -104,13 +104,13 @@ public class MovementsTest {
   @Test
   public void scannerLoad_relativePath_throws() {
     assertThrows(
-        IllegalArgumentException.class, () -> new Movements(new Scanner("@include test.txt")));
+        IllegalArgumentException.class, () -> new Movements(new Scanner("!include test.txt")));
   }
 
   @Test
   public void scannerLoad_absolutePath_notFound_throws() {
     assertThrows(
-        FileNotFoundException.class, () -> new Movements(new Scanner("@include /test.txt")));
+        FileNotFoundException.class, () -> new Movements(new Scanner("!include /test.txt")));
   }
 
   @Test
@@ -128,7 +128,7 @@ public class MovementsTest {
   @Test
   public void scannerLoad_includeLoop_relative() throws IOException {
     File base = tempFolder.newFile("base.txt");
-    Files.write("@include base.txt".getBytes(), base);
+    Files.write("!include base.txt".getBytes(), base);
 
     assertThrows(IllegalArgumentException.class, () -> new Movements(base));
   }
@@ -136,7 +136,7 @@ public class MovementsTest {
   @Test
   public void scannerLoad_includeLoop_absolute() throws IOException {
     File base = tempFolder.newFile("base.txt");
-    Files.write(String.format("@include %s", base.getAbsolutePath()).getBytes(), base);
+    Files.write(String.format("!include %s", base.getAbsolutePath()).getBytes(), base);
 
     assertThrows(IllegalArgumentException.class, () -> new Movements(base));
   }
@@ -147,9 +147,9 @@ public class MovementsTest {
     File include = tempFolder.newFile("include.txt");
     File third = tempFolder.newFile("third.txt");
 
-    Files.write("base_one\n2base_two\n@include include.txt\n\n".getBytes(), base);
+    Files.write("base_one\n2base_two\n!include include.txt\n\n".getBytes(), base);
     Files.write(
-        "@include third.txt\ninclude_one\ninclude_two\n@include third.txt\n".getBytes(), include);
+        "!include third.txt\ninclude_one\ninclude_two\n!include third.txt\n".getBytes(), include);
     Files.write("third\ncustom_command\n".getBytes(), third);
 
     Movements movements = new Movements(base);

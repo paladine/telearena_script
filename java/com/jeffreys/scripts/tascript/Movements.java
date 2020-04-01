@@ -81,7 +81,7 @@ class Movements {
       // resolve a relative path
       if (!file.isAbsolute()) {
         if (baseFile == null) {
-          throw new IllegalArgumentException("Can't @include relative files without a base file");
+          throw new IllegalArgumentException("Can't !include relative files without a base file");
         }
         file = new File(baseFile.getParent(), file.getName());
       }
@@ -89,7 +89,7 @@ class Movements {
       if (fileCurrentlyBeingScanned(file)) {
         throw new IllegalArgumentException(
             String.format(
-                "@included movement file already included, you have a loop: %s",
+                "!included movement file already included, you have a loop: %s",
                 file.getAbsolutePath()));
       }
 
@@ -110,7 +110,7 @@ class Movements {
 
         if (line.isEmpty() || line.startsWith("#") || line.startsWith("//")) { // skip comments
           continue;
-        } else if (line.startsWith("@include ")) { // process includes
+        } else if (line.startsWith("!include ")) { // process includes
           scannerAndFile = include(new File(line.substring(9)));
           scanners.addFirst(scannerAndFile);
           continue;
