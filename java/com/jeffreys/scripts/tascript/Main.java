@@ -55,7 +55,7 @@ public class Main {
     @Provides
     Movements provideMovements(Configuration configuration) {
       try {
-        return new Movements(new Scanner(new File(configuration.getMovementFile())));
+        return new Movements(new File(configuration.getMovementFile()));
       } catch (Exception ex) {
         throw new IllegalArgumentException("Unable to create Movements", ex);
       }

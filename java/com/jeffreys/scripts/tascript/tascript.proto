@@ -35,16 +35,16 @@ message Configuration {
   // whether your big heal is an attack, i.e. a necromancer with yilazidaku
   bool big_heal_spell_is_attack = 5;
   // minimum mana to have before issuing a spell attack (heal not affected)
-  int32 minimum_attack_mana = 6;
+  uint32 minimum_attack_mana = 6;
   // minimum mana to have before moving to the next room
-  int32 minimum_move_mana = 7;
+  uint32 minimum_move_mana = 7;
 
-  int32 maximum_mana = 8;
-  int32 maximum_vitality = 9;
+  uint32 maximum_mana = 8;
+  uint32 maximum_vitality = 9;
 
-  int32 number_of_physical_attacks = 10;
+  uint32 number_of_physical_attacks = 10;
   // how long to wait between movements in milliseconds
-  int32 move_pause_milliseconds = 11;
+  uint32 move_pause_milliseconds = 11;
 
   // whether to wait for all members to be ready before making a move
   bool wait_for_all_members = 13;
