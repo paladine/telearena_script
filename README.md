@@ -162,76 +162,31 @@ triggers: {
 ## Sample movement file (for dwarven level 8, beginning slightly north of the warlords around the bends)
 ```
 # start on the horizontal line, right before going south to the hard guys
-s
-s
-w
-w
-s
-s
-e
-e
-e
-s
-s
-s
+2s
+2w
+2s
+3e
+3s
 
 # turn around
-n
-n
-n
-w
-w
-w
-n
-n
-e
-e
-n
-n
+3n
+3w
+2n
+2e
+2n
+
 # back at beginning , head left
-w
-w
-w
-w
-w
-w
-w
-w
-w
+9w
 # at left fork
-n
-n
-w
-w
-w
-w
-e
-e
-e
-e
-s
-s
+2n
+4w
+4e
+2s
 # back at left fork
-s
-s
-w
-w
-w
-w
-e
-e
-e
-e
-n
-n
+2s
+4w
+4e
+2n
 # back at left fork, return
-e
-e
-e
-e
-e
-e
-e
-e
-e
+9e
 ```
