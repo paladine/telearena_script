@@ -401,6 +401,27 @@ public class TAScriptTest {
   }
 
   @Test
+  public void getTargets_monstersSplitAcrossMultipleLines_hereAtEnd() {
+    String text =
+        YELLOW
+            + "You're in the north plaza.\r\n"
+            + RED
+            + "Par-Salian just discharged a maelstrom of searing flame clouds and huge ice\r\n"
+            + "shards at all hostiles in the area!\r\n"
+            + "There is an elite dwarven guard, two dwarven leutenants, and a dwarven warlord\r\n"
+            + "here.\r\n"
+            + MAGENTA
+            + "Paladine is here.\r\n"
+            + CYAN
+            + "There is nothing on the floor.\r\n";
+    TAScript.GetTargetResult result = getScript(text).getTargets();
+
+    assertThat(result.getCount()).isEqualTo(4);
+    assertThat(result.getTarget()).isEqualTo("guard");
+    assertThat(result.isPlayer()).isFalse();
+  }
+
+  @Test
   public void getTargets_monstersSplitAcrossManyMultipleLines() {
     String text =
         YELLOW

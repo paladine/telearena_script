@@ -282,7 +282,12 @@ public class TAScript {
    */
   private static void parseMonstersIntoConsumer(
       List<String> words, int countIndex, int lastIndex, BiConsumer<String, Integer> consumer) {
-    int count = TEXT_TO_COUNT.get(words.get(countIndex));
+    Integer count = TEXT_TO_COUNT.get(words.get(countIndex));
+    if (count == null) {
+      // something went wrong, so handle gracefully
+      logger.atWarning().log("Found weird shit: %d:%d:%s", countIndex, lastIndex, words);
+      return;
+    }
     String monster = removePluralSuffix(words.get(lastIndex));
     consumer.accept(monster, count);
   }
@@ -386,7 +391,12 @@ public class TAScript {
       boolean lineEndsWithHere = line.getText().endsWith("here.");
 
       // if broken over multiple lines, use the builder and add to it
-      if (!lineStartsWithThere || !lineEndsWithHere) {
+      // Accumulate on two conditions:
+      //
+      // 1) we're already accumulating
+      // 2) Found a line starting with "There" but not ending with "here.", that
+      //    starts accumulation
+      if (monsterBuilder.length() > 0 || (lineStartsWithThere && !lineEndsWithHere)) {
         if (monsterBuilder.length() == 0) {
           firstAttribute = line.getFirstAttributeOrDefault();
         } else {
