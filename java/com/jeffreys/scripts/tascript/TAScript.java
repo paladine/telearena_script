@@ -125,7 +125,7 @@ public class TAScript {
   @VisibleForTesting
   enum AttackType {
     Physical,
-    Spell;
+    Spell
   }
 
   @Inject
@@ -206,10 +206,6 @@ public class TAScript {
     abstract int getCount();
 
     abstract boolean isPlayer();
-
-    boolean hasTarget() {
-      return getCount() > 0 && getTarget() != null;
-    }
 
     static GetTargetResult create(@Nullable String target, int count, boolean isPlayer) {
       if (target != null) {
@@ -334,10 +330,7 @@ public class TAScript {
     ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
     List<String> words = SPACE_SPLITTER.splitToList(text);
     parseMonstersIntoConsumer(
-        words,
-        /* countIndex= */ 2,
-        /* lastIndex= */ words.size() - 2,
-        (monster, count) -> builder.put(monster, count));
+        words, /* countIndex= */ 2, /* lastIndex= */ words.size() - 2, builder::put);
     return builder.build();
   }
 
@@ -664,7 +657,10 @@ public class TAScript {
     }
 
     if (additionalCommand != null) {
-      output.printf("%s\r\n", additionalCommand.replace("$1", targets.getTarget()));
+      output.printf(
+          "%s\r\n",
+          additionalCommand.replace(
+              "$1", Optional.ofNullable(targets.getTarget()).orElse("NO_TARGET")));
     }
   }
 
@@ -813,7 +809,7 @@ public class TAScript {
   private enum HealScenario {
     InBattle,
     PostBattle,
-  };
+  }
 
   private boolean heal(PlayerStatus playerStatus) {
     return heal(playerStatus, EMPTY_TARGET_RESULT, HealScenario.PostBattle);
@@ -1001,8 +997,11 @@ public class TAScript {
     if (!configuration.getUsername().equals(detectedUsername)) {
       throw new IllegalArgumentException(
           String.format(
-              "Username doesn't match detected username [%s]:[%s]",
-              configuration.getUsername(), detectedUsername));
+              "Username doesn't match detected username [%s:%d]:[%s:%d]",
+              configuration.getUsername(),
+              configuration.getUsername().length(),
+              detectedUsername,
+              detectedUsername.length()));
     }
 
     adjustedUsername = getFirstWord(detectedUsername);
@@ -1140,11 +1139,8 @@ public class TAScript {
   }
 
   private boolean isNeedsYariLine(ParsedAnsiText line) {
-    if (line.getFirstAttributeOrDefault().getForegroundColor().equals(AnsiColor.BLUE)
-        && line.getText().equals("You suddenly feel very vulnerable!")) {
-      return true;
-    }
-    return false;
+    return line.getFirstAttributeOrDefault().getForegroundColor().equals(AnsiColor.BLUE)
+        && line.getText().equals("You suddenly feel very vulnerable!");
   }
 
   private boolean preprocessLine(ParsedAnsiText parsedAnsiText, String rawLine) {
@@ -1235,7 +1231,7 @@ public class TAScript {
     }
   }
 
-  private static final String removePluralSuffix(String text) {
+  private static String removePluralSuffix(String text) {
     if (text.endsWith("ves")) {
       return text.substring(0, text.length() - 3);
     }

@@ -36,7 +36,7 @@ public class TriggersTest {
 
   @Test
   public void emptyTrigger_doesntBomb() {
-    Triggers triggers = Triggers.of(ImmutableList.of(Trigger.getDefaultInstance()));
+    Triggers.of(ImmutableList.of(Trigger.getDefaultInstance()));
   }
 
   @Test

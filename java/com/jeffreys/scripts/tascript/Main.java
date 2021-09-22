@@ -68,7 +68,7 @@ public class Main {
       OutputStream outputStream =
           configuration.getLogFile().isEmpty()
               ? ByteStreams.nullOutputStream()
-              : new FileOutputStream(new File(configuration.getLogFile()));
+              : new FileOutputStream(configuration.getLogFile());
 
       return new PrintWriter(outputStream, /* autoFlush= */ true);
     }

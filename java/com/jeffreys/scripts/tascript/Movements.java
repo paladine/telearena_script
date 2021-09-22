@@ -20,7 +20,6 @@ import javax.annotation.Nullable;
 class Movements {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
-  private final ImmutableList<String> movements;
   private final Iterator<String> iterator;
 
   public Movements(File file) throws IOException {
@@ -42,8 +41,7 @@ class Movements {
     if (movements.isEmpty()) {
       throw new NoSuchElementException("Empty movements");
     }
-    this.movements = ImmutableList.copyOf(movements);
-    this.iterator = Iterators.cycle(movements);
+    this.iterator = Iterators.cycle(ImmutableList.copyOf(movements));
   }
 
   public String getNextMovement() {

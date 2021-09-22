@@ -24,7 +24,7 @@ public class NonBlockingSuppliers {
     }
 
     @Override
-    public T getValue() throws ExecutionException {
+    public T getValue() {
       return value;
     }
   }
@@ -62,9 +62,9 @@ public class NonBlockingSuppliers {
 
   private static final class QueuePopulator<T> implements Runnable {
     private final BlockingQueue<Getter<T>> queue;
-    private final Supplier<String> blockingSupplier;
+    private final Supplier<T> blockingSupplier;
 
-    private QueuePopulator(BlockingQueue<Getter<T>> queue, Supplier<String> blockingSupplier) {
+    private QueuePopulator(BlockingQueue<Getter<T>> queue, Supplier<T> blockingSupplier) {
       this.queue = queue;
       this.blockingSupplier = blockingSupplier;
     }
@@ -74,9 +74,9 @@ public class NonBlockingSuppliers {
       while (true) {
         Getter<T> queueValue;
         try {
-          queueValue = new ValueGetter(blockingSupplier.get());
+          queueValue = new ValueGetter<>(blockingSupplier.get());
         } catch (Throwable t) {
-          queueValue = new ThrowingGetter(t);
+          queueValue = new ThrowingGetter<>(t);
         }
 
         try {
@@ -92,8 +92,8 @@ public class NonBlockingSuppliers {
   /** Converts a blocking {@link Supplier} into a non-blocking one. */
   public static <T> NonBlockingSupplier<T> createNonBlockingSupplier(
       int capacity, Executor executor, Supplier<T> blockingSupplier) {
-    BlockingQueue<Getter<T>> queue = new ArrayBlockingQueue(capacity);
-    executor.execute(new QueuePopulator(queue, blockingSupplier));
-    return new NonBlockingSupplierImpl(capacity, queue);
+    BlockingQueue<Getter<T>> queue = new ArrayBlockingQueue<>(capacity);
+    executor.execute(new QueuePopulator<>(queue, blockingSupplier));
+    return new NonBlockingSupplierImpl<>(capacity, queue);
   }
 }

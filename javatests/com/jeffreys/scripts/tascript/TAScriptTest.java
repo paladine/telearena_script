@@ -1982,7 +1982,7 @@ public class TAScriptTest {
             + "Super Conductor nodded to you in agreement!\r\n";
 
     TAScript script = getScript(text);
-    assertThrows(NoSuchElementException.class, () -> script.run());
+    assertThrows(NoSuchElementException.class, script::run);
 
     assertThat(output.toString()).isEqualTo("gr\r\nnod t\r\nnod Super\r\ngr\r\nx\r\n\r\n=x\r\n");
   }
@@ -2000,7 +2000,7 @@ public class TAScriptTest {
             + "There is a grey robed priest here.\r\n";
 
     TAScript script = getScript(text);
-    assertThrows(DeadException.class, () -> script.run());
+    assertThrows(DeadException.class, script::run);
 
     assertThat(output.toString()).isEqualTo("gr\r\nnod t\r\nnod Super\r\ngr\r\nx\r\n\r\n=x\r\n");
   }
@@ -2061,7 +2061,7 @@ public class TAScriptTest {
             + "There is a grey robed priest here.\r\n";
 
     TAScript script = getScript(text);
-    assertThrows(DeadException.class, () -> script.run());
+    assertThrows(DeadException.class, script::run);
 
     assertThat(output.toString())
         .isEqualTo(
@@ -2094,7 +2094,7 @@ public class TAScriptTest {
             + "There is a grey robed priest here.\r\n";
 
     TAScript script = getScript(text);
-    assertThrows(IllegalArgumentException.class, () -> script.run());
+    assertThrows(IllegalArgumentException.class, script::run);
 
     assertThat(output.toString()).isEqualTo("gr\r\nnod t\r\nnod Super\r\n");
   }
@@ -2224,7 +2224,7 @@ public class TAScriptTest {
             + "There is a grey robed priest here.\r\n";
 
     TAScript script = getScript(text);
-    assertThrows(DeadException.class, () -> script.run());
+    assertThrows(DeadException.class, script::run);
 
     assertThat(output.toString())
         .isEqualTo("gr\r\nnod t\r\nnod Super\r\ngr\r\nExperience is 10003 dude.\r\n\r\nx\r\n\r\n");

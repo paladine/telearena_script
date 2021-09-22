@@ -21,7 +21,7 @@ public class MovementsTest {
 
   private static final int REPEAT_LOOPS = 8;
 
-  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+  @Rule public final TemporaryFolder tempFolder = new TemporaryFolder();
 
   @Test
   public void basicMovements() {
@@ -68,7 +68,7 @@ public class MovementsTest {
   }
 
   @Test
-  public void emptyMovements_withScanner() throws IOException {
+  public void emptyMovements_withScanner() {
     assertThrows(NoSuchElementException.class, () -> new Movements(new Scanner("")));
   }
 

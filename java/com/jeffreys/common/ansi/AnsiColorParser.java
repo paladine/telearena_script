@@ -18,7 +18,7 @@ public class AnsiColorParser {
     BLUE,
     MAGENTA,
     CYAN,
-    WHITE;
+    WHITE
   }
 
   public enum AnsiAttribute {
@@ -39,8 +39,8 @@ public class AnsiColorParser {
     ESCAPE,
     BRACKET,
     VALUE_ACCUM,
-    WAIT_FOR_ANSI_END;
-  };
+    WAIT_FOR_ANSI_END
+  }
 
   private static final char ASCII_ESCAPE = 0x1B;
   private static final ImmutableSet<Character> ANSI_ENDS =

@@ -10,7 +10,6 @@ import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Supplier;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +26,7 @@ public class NonBlockingSuppliersTest {
   }
 
   @Test
-  public void noCapacity_throwsError() throws Exception {
+  public void noCapacity_throwsError() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -51,12 +50,9 @@ public class NonBlockingSuppliersTest {
         NonBlockingSuppliers.createNonBlockingSupplier(
             /* capacity= */ 1,
             executorService,
-            new Supplier<String>() {
-              @Override
-              public String get() {
-                Uninterruptibles.sleepUninterruptibly(Duration.ofSeconds(2));
-                return "test";
-              }
+            () -> {
+              Uninterruptibles.sleepUninterruptibly(Duration.ofSeconds(2));
+              return "test";
             });
 
     assertThat(supplier.get(Duration.ofSeconds(1))).isEqualTo(null);
@@ -69,11 +65,8 @@ public class NonBlockingSuppliersTest {
         NonBlockingSuppliers.createNonBlockingSupplier(
             /* capacity= */ 1,
             executorService,
-            new Supplier<String>() {
-              @Override
-              public String get() {
-                throw new IllegalArgumentException("haha");
-              }
+            () -> {
+              throw new IllegalArgumentException("haha");
             });
 
     try {

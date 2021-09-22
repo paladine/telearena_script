@@ -18,6 +18,7 @@ public class Protos {
   }
 
   /** Returns a proto object parsed from {@code file} as text. */
+  @SuppressWarnings("unchecked")
   public static <T extends Message> T parseProtoFromText(String proto, Class<T> clazz) {
     try {
       Message.Builder builder = getBuilder(clazz);
@@ -29,6 +30,7 @@ public class Protos {
   }
 
   /** Returns a proto object parsed from {@code file} as text. */
+  @SuppressWarnings("unchecked")
   public static <T extends Message> T parseProtoFromTextFile(String file, Class<T> clazz) {
     try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file))) {
       Message.Builder builder = getBuilder(clazz);
